@@ -26,7 +26,6 @@ template<typename Head, typename... Tail> void dbg_out(Head H, Tail... T) { cerr
 #else
 #define dbg(...)
 #endif
-
 #define vll vector<long long>
 #define endl "\n"   // Change for interactive problems.
 #define ll long long
@@ -66,75 +65,31 @@ ll modadd(ll a,ll b){ return modpar(modpar(a)+modpar(b)); }
 ll modmul(ll a,ll b){ return modpar(modpar(a)*modpar(b)); }
 ll poww(ll n, ll r){ if(r == 0) return 1; if(r == 1) return n%mod; ll ans = 1; ll know=poww(n, r/2)%mod; if(r%2) ans = (ans * n)%mod; return (ans*((know*know)%mod))%mod;}
 
-/*------------------------------------------------------------------------------------*/
-
-const int n = 7;
-const int total_steps = n*n-1;
-bool visited[n][n];
-string path;
-
-// see if the point is in the grid or outside the grid
-bool isValid(int i) {
-	return (i >= 0 and i < 7);
-}
-
-void move(int row, int col, int &ans, int steps) {
-	if (row == n - 1 and col == 0) {
-		if (steps == total_steps)
-			ans++;
-		return ;
-	}
-
-	if ((row == n-1 or row == 0 or col == 0 or col == n-1 or (visited[row - 1][col] and visited[row+1][col])) and isValid(col - 1) and isValid(col + 1) and !visited[row][col - 1] and !visited[row][col + 1]) {
-		return;
-	}
-	if (((row + 1 == n or row == 0 or col == 0 or col + 1 == n  or (visited[row][col - 1] and visited[row][col + 1])) and isValid(row - 1) and isValid(row + 1) and !visited[row - 1][col] and !visited[row + 1][col])) {
-		return;
-	}
-
-	visited[row][col] = true;
-
-	if (path[steps] != '?')
-	{
-		if (path[steps] == 'U' and isValid(row - 1) and !visited[row - 1][col])
-			move(row - 1, col, ans, steps + 1);
-
-		else if (path[steps] == 'R' and isValid(col + 1) and !visited[row][col + 1])
-			move(row, col + 1, ans, steps + 1);
-
-		else if (path[steps] == 'D' and isValid(row + 1) and !visited[row + 1][col])
-			move(row + 1, col, ans, steps + 1);
-
-		else if (path[steps] == 'L' and isValid(col - 1) and !visited[row][col - 1])
-			move(row, col - 1, ans, steps + 1);
-	}
-	else {
-		// move down
-		if (isValid(row + 1) and !visited[row + 1][col])
-			move(row + 1, col, ans, steps + 1);
-
-		// move right
-		if (isValid(col + 1) and !visited[row][col + 1])
-			move(row, col + 1, ans, steps + 1);
-
-		// move up
-		if (isValid(row - 1) and !visited[row - 1][col])
-			move(row - 1, col, ans, steps + 1);
-
-		// move left
-		if (isValid(col - 1) and !visited[row][col - 1])
-			move(row, col - 1, ans, steps + 1);
-
-	}
-
-	visited[row][col] = false;
-}
-
 void solve() {
-    cin >> path;
-	int ans = 0;
-	move(0, 0, ans, 0);
-	cout<<ans;
+    int n;
+    cin>>n;
+
+    int S = n*(n+1)/2; 
+    if(S%2 != 0) {
+        cout<<0;
+        return;
+    }
+    int s = S/2;
+
+    vector<vll> dp(n+1, vector<ll>(s+1, 0));
+
+    dp[0][0] = 1;
+
+    for(int sum=0; sum<=s; sum++) {
+
+        for(int i=1; i<n; i++) {
+
+            dp[i][sum] = dp[i-1][sum];
+            if(sum - i >= 0)
+                dp[i][sum] = (dp[i-1][sum] + dp[i-1][sum-i]) %MOD;
+        }
+    }
+    cout<<dp[n-1][s];
 }
 
 int main() {
@@ -147,17 +102,17 @@ precision(10);
 //freopen("errorf.txt", "w", stderr);
 //#endif
 
-    auto start = high_resolution_clock::now();
+    // auto start = high/_resolu//tion_clock::now();
     int tc = 1;
     // cin >> tc;
     for (int t = 1; t <= tc; t++) {
         // cout << "Case #" << t << ": ";
         solve();
-        cout<<endl;
+        // cout<<endl;
     }
-    auto stop = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>(stop - start);
-    #ifndef ONLINE_JUDGE
-        cout <<endl << "Time: "<< (float)duration.count()/1000000 << " s" << endl;
-    #endif
+    // auto stop = high_resolution_clock::now();
+    // auto duration = duration_cast<microseconds>(stop - start);
+    // #ifndef ONLINE_JUDGE
+    //     cout <<endl << "Time: "<< (float)duration.count()/1000000 << " s" << endl;
+    // #endif
 }

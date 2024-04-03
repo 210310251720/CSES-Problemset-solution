@@ -35,10 +35,10 @@ template<typename Head, typename... Tail> void dbg_out(Head H, Tail... T) { cerr
 #define all(a) (a).begin(), (a).end()
 #define inmap(mp)       map<ll,ll> mp
 #define chmap(mp)       map<char,ll> mp
-#define mod            1000000007
+// #define mod            1000000007
 //#define max(a)   *max_element(a.begin(), a.end());
 #define sort(a)   sort(a.begin(), a.end());
-
+int mod = (int)(1e9+7);
 // PBDS :
 //order_of_key(k): returns count of elements strictly smaller than k
 //find_by_order(k): returns the iterator of the k-th element in a set (0-index)
@@ -64,77 +64,47 @@ ll fastexpomod(ll x, ll y, ll p) { ll res = 1;x = x % p;if (x == 0) return 0;whi
 ll modpar(ll a){return ((a%mod) + mod) % mod; }
 ll modadd(ll a,ll b){ return modpar(modpar(a)+modpar(b)); }
 ll modmul(ll a,ll b){ return modpar(modpar(a)*modpar(b)); }
+// ll modinv(ll A, ll modul) { for (int X = 1; X < modul; X++) if (((A % modul) * (X % modul)) % modul == 1) return X; }
 ll poww(ll n, ll r){ if(r == 0) return 1; if(r == 1) return n%mod; ll ans = 1; ll know=poww(n, r/2)%mod; if(r%2) ans = (ans * n)%mod; return (ans*((know*know)%mod))%mod;}
 
-/*------------------------------------------------------------------------------------*/
 
-const int n = 7;
-const int total_steps = n*n-1;
-bool visited[n][n];
-string path;
 
-// see if the point is in the grid or outside the grid
-bool isValid(int i) {
-	return (i >= 0 and i < 7);
-}
+int help(int n, int m, vll& v) {
+    int dp[n+2][m+2];
+    memset(dp, 0, sizeof(dp));
 
-void move(int row, int col, int &ans, int steps) {
-	if (row == n - 1 and col == 0) {
-		if (steps == total_steps)
-			ans++;
-		return ;
-	}
-
-	if ((row == n-1 or row == 0 or col == 0 or col == n-1 or (visited[row - 1][col] and visited[row+1][col])) and isValid(col - 1) and isValid(col + 1) and !visited[row][col - 1] and !visited[row][col + 1]) {
-		return;
-	}
-	if (((row + 1 == n or row == 0 or col == 0 or col + 1 == n  or (visited[row][col - 1] and visited[row][col + 1])) and isValid(row - 1) and isValid(row + 1) and !visited[row - 1][col] and !visited[row + 1][col])) {
-		return;
-	}
-
-	visited[row][col] = true;
-
-	if (path[steps] != '?')
-	{
-		if (path[steps] == 'U' and isValid(row - 1) and !visited[row - 1][col])
-			move(row - 1, col, ans, steps + 1);
-
-		else if (path[steps] == 'R' and isValid(col + 1) and !visited[row][col + 1])
-			move(row, col + 1, ans, steps + 1);
-
-		else if (path[steps] == 'D' and isValid(row + 1) and !visited[row + 1][col])
-			move(row + 1, col, ans, steps + 1);
-
-		else if (path[steps] == 'L' and isValid(col - 1) and !visited[row][col - 1])
-			move(row, col - 1, ans, steps + 1);
-	}
-	else {
-		// move down
-		if (isValid(row + 1) and !visited[row + 1][col])
-			move(row + 1, col, ans, steps + 1);
-
-		// move right
-		if (isValid(col + 1) and !visited[row][col + 1])
-			move(row, col + 1, ans, steps + 1);
-
-		// move up
-		if (isValid(row - 1) and !visited[row - 1][col])
-			move(row - 1, col, ans, steps + 1);
-
-		// move left
-		if (isValid(col - 1) and !visited[row][col - 1])
-			move(row, col - 1, ans, steps + 1);
-
-	}
-
-	visited[row][col] = false;
+    for(int i=1; i<=n; i++) {
+        for(int j=1; j<=m; j++)
+            if(i==1) {
+                if(v[i]==0 or v[i]==j)
+                    dp[i][j] = 1;
+                else
+                    dp[i][j] = 0;
+            }
+            else {
+                if(v[i]==0 or v[i]==j)
+                    dp[i][j] = ( dp[i-1][j-1]%MOD + dp[i-1][j]%mod + dp[i-1][j+1]%mod)%mod;
+                else
+                    dp[i][j] = 0;
+            }
+        // cout<<dp[i][1]<<endl;
+    }
+    
+    int ans = 0;
+    for(int i=1; i<=m; i++){
+        ans = (ans + dp[n][i])%MOD;
+    }
+    // cout<<ans<<endl;
+    return ans;
 }
 
 void solve() {
-    cin >> path;
-	int ans = 0;
-	move(0, 0, ans, 0);
-	cout<<ans;
+    int n,m;
+    cin>>n>>m;
+    vll v(n+1);
+    for(int i=1; i<=n; i++)
+        cin>>v[i];
+    cout<<help(n, m, v);
 }
 
 int main() {

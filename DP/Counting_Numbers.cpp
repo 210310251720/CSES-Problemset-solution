@@ -64,77 +64,43 @@ ll fastexpomod(ll x, ll y, ll p) { ll res = 1;x = x % p;if (x == 0) return 0;whi
 ll modpar(ll a){return ((a%mod) + mod) % mod; }
 ll modadd(ll a,ll b){ return modpar(modpar(a)+modpar(b)); }
 ll modmul(ll a,ll b){ return modpar(modpar(a)*modpar(b)); }
+// ll modinv(ll A, ll modul) { for (int X = 1; X < modul; X++) if (((A % modul) * (X % modul)) % modul == 1) return X; }
 ll poww(ll n, ll r){ if(r == 0) return 1; if(r == 1) return n%mod; ll ans = 1; ll know=poww(n, r/2)%mod; if(r%2) ans = (ans * n)%mod; return (ans*((know*know)%mod))%mod;}
 
-/*------------------------------------------------------------------------------------*/
-
-const int n = 7;
-const int total_steps = n*n-1;
-bool visited[n][n];
-string path;
-
-// see if the point is in the grid or outside the grid
-bool isValid(int i) {
-	return (i >= 0 and i < 7);
-}
-
-void move(int row, int col, int &ans, int steps) {
-	if (row == n - 1 and col == 0) {
-		if (steps == total_steps)
-			ans++;
-		return ;
-	}
-
-	if ((row == n-1 or row == 0 or col == 0 or col == n-1 or (visited[row - 1][col] and visited[row+1][col])) and isValid(col - 1) and isValid(col + 1) and !visited[row][col - 1] and !visited[row][col + 1]) {
-		return;
-	}
-	if (((row + 1 == n or row == 0 or col == 0 or col + 1 == n  or (visited[row][col - 1] and visited[row][col + 1])) and isValid(row - 1) and isValid(row + 1) and !visited[row - 1][col] and !visited[row + 1][col])) {
-		return;
-	}
-
-	visited[row][col] = true;
-
-	if (path[steps] != '?')
-	{
-		if (path[steps] == 'U' and isValid(row - 1) and !visited[row - 1][col])
-			move(row - 1, col, ans, steps + 1);
-
-		else if (path[steps] == 'R' and isValid(col + 1) and !visited[row][col + 1])
-			move(row, col + 1, ans, steps + 1);
-
-		else if (path[steps] == 'D' and isValid(row + 1) and !visited[row + 1][col])
-			move(row + 1, col, ans, steps + 1);
-
-		else if (path[steps] == 'L' and isValid(col - 1) and !visited[row][col - 1])
-			move(row, col - 1, ans, steps + 1);
-	}
-	else {
-		// move down
-		if (isValid(row + 1) and !visited[row + 1][col])
-			move(row + 1, col, ans, steps + 1);
-
-		// move right
-		if (isValid(col + 1) and !visited[row][col + 1])
-			move(row, col + 1, ans, steps + 1);
-
-		// move up
-		if (isValid(row - 1) and !visited[row - 1][col])
-			move(row - 1, col, ans, steps + 1);
-
-		// move left
-		if (isValid(col - 1) and !visited[row][col - 1])
-			move(row, col - 1, ans, steps + 1);
-
-	}
-
-	visited[row][col] = false;
+ll dp[20][2][10][2];
+ll fn(string num, int n, bool tight, int prev, bool leading_zeros) {
+    if(n==0) 
+        return 1;
+    if(prev!=-1 and dp[n][tight][prev][leading_zeros]!=-1)
+        return dp[n][tight][prev][leading_zeros];
+    int k = (num[num.length()-n]-'0');
+    int ub = tight? k:9;
+    ll ans = 0;
+    for(int i=0; i<=ub; i++) {
+        if(i==prev and leading_zeros==false) 
+            continue;
+        ans += fn(num, n-1, tight&(i==ub), i, (leading_zeros&(i==0)));
+    }
+    if(prev!=-1)
+        return dp[n][tight][prev][leading_zeros] = ans;
+    return ans;
 }
 
 void solve() {
-    cin >> path;
-	int ans = 0;
-	move(0, 0, ans, 0);
-	cout<<ans;
+    ll a,b;
+    cin>>a>>b;
+    if(a==0 and b==0) {
+        cout<<1;
+        return;
+    }
+    memset(dp, -1, sizeof(dp));
+    if(a==0) {
+        cout<<fn(to_string(b), to_string(b).length(), 1, 10, true)+1;
+        return;
+    }
+    a = fn(to_string(a-1), to_string(a-1).length(),1, 10, true);
+    memset(dp, -1, sizeof(dp));
+    cout<<fn(to_string(b), to_string(b).length(), 1, 10, true)-a;
 }
 
 int main() {

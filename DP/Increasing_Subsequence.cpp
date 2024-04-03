@@ -64,77 +64,52 @@ ll fastexpomod(ll x, ll y, ll p) { ll res = 1;x = x % p;if (x == 0) return 0;whi
 ll modpar(ll a){return ((a%mod) + mod) % mod; }
 ll modadd(ll a,ll b){ return modpar(modpar(a)+modpar(b)); }
 ll modmul(ll a,ll b){ return modpar(modpar(a)*modpar(b)); }
+// ll modinv(ll A, ll modul) { for (int X = 1; X < modul; X++) if (((A % modul) * (X % modul)) % modul == 1) return X; }
 ll poww(ll n, ll r){ if(r == 0) return 1; if(r == 1) return n%mod; ll ans = 1; ll know=poww(n, r/2)%mod; if(r%2) ans = (ans * n)%mod; return (ans*((know*know)%mod))%mod;}
 
-/*------------------------------------------------------------------------------------*/
-
-const int n = 7;
-const int total_steps = n*n-1;
-bool visited[n][n];
-string path;
-
-// see if the point is in the grid or outside the grid
-bool isValid(int i) {
-	return (i >= 0 and i < 7);
+ll best(map<ll,ll> &mp, ll x) {
+    auto it = mp.lower_bound(x);
+    if(it == mp.begin()) 
+        return 0;
+    it--;
+    return it->second;
 }
 
-void move(int row, int col, int &ans, int steps) {
-	if (row == n - 1 and col == 0) {
-		if (steps == total_steps)
-			ans++;
-		return ;
-	}
+void insert(map<ll,ll>& mp, ll v, ll adv) {
+    if(mp[v] >= adv)
+        return;
+    mp[v] = adv;
+    auto it = mp.find(v);
+    it++;
 
-	if ((row == n-1 or row == 0 or col == 0 or col == n-1 or (visited[row - 1][col] and visited[row+1][col])) and isValid(col - 1) and isValid(col + 1) and !visited[row][col - 1] and !visited[row][col + 1]) {
-		return;
-	}
-	if (((row + 1 == n or row == 0 or col == 0 or col + 1 == n  or (visited[row][col - 1] and visited[row][col + 1])) and isValid(row - 1) and isValid(row + 1) and !visited[row - 1][col] and !visited[row + 1][col])) {
-		return;
-	}
-
-	visited[row][col] = true;
-
-	if (path[steps] != '?')
-	{
-		if (path[steps] == 'U' and isValid(row - 1) and !visited[row - 1][col])
-			move(row - 1, col, ans, steps + 1);
-
-		else if (path[steps] == 'R' and isValid(col + 1) and !visited[row][col + 1])
-			move(row, col + 1, ans, steps + 1);
-
-		else if (path[steps] == 'D' and isValid(row + 1) and !visited[row + 1][col])
-			move(row + 1, col, ans, steps + 1);
-
-		else if (path[steps] == 'L' and isValid(col - 1) and !visited[row][col - 1])
-			move(row, col - 1, ans, steps + 1);
-	}
-	else {
-		// move down
-		if (isValid(row + 1) and !visited[row + 1][col])
-			move(row + 1, col, ans, steps + 1);
-
-		// move right
-		if (isValid(col + 1) and !visited[row][col + 1])
-			move(row, col + 1, ans, steps + 1);
-
-		// move up
-		if (isValid(row - 1) and !visited[row - 1][col])
-			move(row - 1, col, ans, steps + 1);
-
-		// move left
-		if (isValid(col - 1) and !visited[row][col - 1])
-			move(row, col - 1, ans, steps + 1);
-
-	}
-
-	visited[row][col] = false;
+    while(it != mp.end() && it->second <= adv) {
+        auto temp = it;
+        it++;
+        mp.erase(temp);
+    }
 }
 
 void solve() {
-    cin >> path;
-	int ans = 0;
-	move(0, 0, ans, 0);
-	cout<<ans;
+    ll n;
+    cin>>n;
+    vll v(n);
+    cin>>v;
+
+    vll dp(n, 1);
+
+    map<ll,ll> mp;
+    mp[v[0]] = 1;
+
+    for(int i=1; i<n; i++) {
+        dp[i] = 1 + best(mp, v[i]);
+        insert(mp, v[i], dp[i]);
+    }
+
+    ll ans = INT_MIN;
+    // cout<<dp<<endl;
+    for(int i=0; i<n; i++)
+        ans = max(ans, dp[i]);
+    cout<<ans;
 }
 
 int main() {

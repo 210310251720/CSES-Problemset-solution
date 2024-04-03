@@ -32,16 +32,16 @@ template<typename Head, typename... Tail> void dbg_out(Head H, Tail... T) { cerr
 #define ll long long
 #define ld long double
 #define sza(x) ((int)x.size())
-#define all(a) (a).begin(), (a).end()
+#define all(n) (n).begin(), (n).end()
 #define inmap(mp)       map<ll,ll> mp
 #define chmap(mp)       map<char,ll> mp
 #define mod            1000000007
-//#define max(a)   *max_element(a.begin(), a.end());
-#define sort(a)   sort(a.begin(), a.end());
+//#define max(n)   *max_element(n.begin(), n.end());
+#define sort(n)   sort(n.begin(), n.end());
 
 // PBDS :
 //order_of_key(k): returns count of elements strictly smaller than k
-//find_by_order(k): returns the iterator of the k-th element in a set (0-index)
+//find_by_order(k): returns the iterator of the k-th element in n set (0-index)
 //TC: O(log(n)) for both.
 // Change int -> pair<int,int> if required. Change less to less_equal for multiset; less to greater for descending.
 typedef tree<int, null_type, less<int>, rb_tree_tag, tree_order_statistics_node_update> ordered_set;
@@ -55,86 +55,42 @@ const ld EPS = 1e-9;
  
 vll sieve(ll n){vector<bool> prime(n+1, true); for (ll p = 2; p * p <= n; p++) if (prime[p] == true) for (ll i = p * p; i <= n; i += p) prime[i] = false; vll v;
 for (ll p = 2; p <= n; p++){if (prime[p]) v.push_back(p);} return v;}
-ll gcd(ll a, ll b){ if(b == 0){ return a;} return gcd(b, a%b);}
+ll gcd(ll n, ll m){ if(m == 0){ return n;} return gcd(m, n%m);}
 ll nCr(int n, int r){ll p = 1, k = 1;if (n - r < r) {r = n - r;} if (r != 0) {while (r) {p *= n;k *= r; ll m = gcd(p, k);p /= m;k /= m;n--;r--;}}else {p = 1;} return p;}
 void precision(int x){cout << fixed << setprecision(x);}
 ll fastexpo(ll x, ll y){ll res = 1; while (y) {if (y % 2 == 1)res = (res * x);y = y >> 1ll;x = (x * x);}return res;}
 ll fastexpomod(ll x, ll y, ll p) { ll res = 1;x = x % p;if (x == 0) return 0;while (y > 0) { if (y & 1ll) res = (res*x) % p; y = y>>1ll;x = (x*x) % p; } return res; } 
 // ll nfactors(ll n){for(ll i = 2; i <= n; i++){for(ll j = i; j <= n; j += i)fact[j]++;}}
-ll modpar(ll a){return ((a%mod) + mod) % mod; }
-ll modadd(ll a,ll b){ return modpar(modpar(a)+modpar(b)); }
-ll modmul(ll a,ll b){ return modpar(modpar(a)*modpar(b)); }
+ll modpar(ll n){return ((n%mod) + mod) % mod; }
+ll modadd(ll n,ll m){ return modpar(modpar(n)+modpar(m)); }
+ll modmul(ll n,ll m){ return modpar(modpar(n)*modpar(m)); }
+// ll modinv(ll A, ll modul) { for (int X = 1; X < modul; X++) if (((A % modul) * (X % modul)) % modul == 1) return X; }
 ll poww(ll n, ll r){ if(r == 0) return 1; if(r == 1) return n%mod; ll ans = 1; ll know=poww(n, r/2)%mod; if(r%2) ans = (ans * n)%mod; return (ans*((know*know)%mod))%mod;}
 
-/*------------------------------------------------------------------------------------*/
-
-const int n = 7;
-const int total_steps = n*n-1;
-bool visited[n][n];
-string path;
-
-// see if the point is in the grid or outside the grid
-bool isValid(int i) {
-	return (i >= 0 and i < 7);
-}
-
-void move(int row, int col, int &ans, int steps) {
-	if (row == n - 1 and col == 0) {
-		if (steps == total_steps)
-			ans++;
-		return ;
-	}
-
-	if ((row == n-1 or row == 0 or col == 0 or col == n-1 or (visited[row - 1][col] and visited[row+1][col])) and isValid(col - 1) and isValid(col + 1) and !visited[row][col - 1] and !visited[row][col + 1]) {
-		return;
-	}
-	if (((row + 1 == n or row == 0 or col == 0 or col + 1 == n  or (visited[row][col - 1] and visited[row][col + 1])) and isValid(row - 1) and isValid(row + 1) and !visited[row - 1][col] and !visited[row + 1][col])) {
-		return;
-	}
-
-	visited[row][col] = true;
-
-	if (path[steps] != '?')
-	{
-		if (path[steps] == 'U' and isValid(row - 1) and !visited[row - 1][col])
-			move(row - 1, col, ans, steps + 1);
-
-		else if (path[steps] == 'R' and isValid(col + 1) and !visited[row][col + 1])
-			move(row, col + 1, ans, steps + 1);
-
-		else if (path[steps] == 'D' and isValid(row + 1) and !visited[row + 1][col])
-			move(row + 1, col, ans, steps + 1);
-
-		else if (path[steps] == 'L' and isValid(col - 1) and !visited[row][col - 1])
-			move(row, col - 1, ans, steps + 1);
-	}
-	else {
-		// move down
-		if (isValid(row + 1) and !visited[row + 1][col])
-			move(row + 1, col, ans, steps + 1);
-
-		// move right
-		if (isValid(col + 1) and !visited[row][col + 1])
-			move(row, col + 1, ans, steps + 1);
-
-		// move up
-		if (isValid(row - 1) and !visited[row - 1][col])
-			move(row - 1, col, ans, steps + 1);
-
-		// move left
-		if (isValid(col - 1) and !visited[row][col - 1])
-			move(row, col - 1, ans, steps + 1);
-
-	}
-
-	visited[row][col] = false;
-}
 
 void solve() {
-    cin >> path;
-	int ans = 0;
-	move(0, 0, ans, 0);
-	cout<<ans;
+    int n,m;
+    cin>>n>>m;
+
+    int dp[n+1][m+1];
+
+    for(int height=1; height<=n; height++) {
+        for(int width =1; width<=m; width++) {
+            if(height==width)
+                dp[height][width]=0;
+
+            else {
+                int ans=INT_MAX;
+
+                for(int i=1;i<width;i++)
+                    ans = min(ans,1+dp[height][i]+dp[height][width-i]);
+                for(int i=1;i<height;i++)
+                    ans = min(ans,1+dp[i][width]+dp[height-i][width]);
+                dp[height][width] = ans;
+            }
+        }
+    }
+    cout<<dp[n][m];
 }
 
 int main() {
@@ -143,8 +99,6 @@ int main() {
 precision(10);
 //#ifndef ONLINE_JUDGE
 //freopen("inputf.txt", "r", stdin);
-//freopen("outputf.txt", "w", stdout);
-//freopen("errorf.txt", "w", stderr);
 //#endif
 
     auto start = high_resolution_clock::now();

@@ -66,75 +66,41 @@ ll modadd(ll a,ll b){ return modpar(modpar(a)+modpar(b)); }
 ll modmul(ll a,ll b){ return modpar(modpar(a)*modpar(b)); }
 ll poww(ll n, ll r){ if(r == 0) return 1; if(r == 1) return n%mod; ll ans = 1; ll know=poww(n, r/2)%mod; if(r%2) ans = (ans * n)%mod; return (ans*((know*know)%mod))%mod;}
 
-/*------------------------------------------------------------------------------------*/
-
-const int n = 7;
-const int total_steps = n*n-1;
-bool visited[n][n];
-string path;
-
-// see if the point is in the grid or outside the grid
-bool isValid(int i) {
-	return (i >= 0 and i < 7);
-}
-
-void move(int row, int col, int &ans, int steps) {
-	if (row == n - 1 and col == 0) {
-		if (steps == total_steps)
-			ans++;
-		return ;
-	}
-
-	if ((row == n-1 or row == 0 or col == 0 or col == n-1 or (visited[row - 1][col] and visited[row+1][col])) and isValid(col - 1) and isValid(col + 1) and !visited[row][col - 1] and !visited[row][col + 1]) {
-		return;
-	}
-	if (((row + 1 == n or row == 0 or col == 0 or col + 1 == n  or (visited[row][col - 1] and visited[row][col + 1])) and isValid(row - 1) and isValid(row + 1) and !visited[row - 1][col] and !visited[row + 1][col])) {
-		return;
-	}
-
-	visited[row][col] = true;
-
-	if (path[steps] != '?')
-	{
-		if (path[steps] == 'U' and isValid(row - 1) and !visited[row - 1][col])
-			move(row - 1, col, ans, steps + 1);
-
-		else if (path[steps] == 'R' and isValid(col + 1) and !visited[row][col + 1])
-			move(row, col + 1, ans, steps + 1);
-
-		else if (path[steps] == 'D' and isValid(row + 1) and !visited[row + 1][col])
-			move(row + 1, col, ans, steps + 1);
-
-		else if (path[steps] == 'L' and isValid(col - 1) and !visited[row][col - 1])
-			move(row, col - 1, ans, steps + 1);
-	}
-	else {
-		// move down
-		if (isValid(row + 1) and !visited[row + 1][col])
-			move(row + 1, col, ans, steps + 1);
-
-		// move right
-		if (isValid(col + 1) and !visited[row][col + 1])
-			move(row, col + 1, ans, steps + 1);
-
-		// move up
-		if (isValid(row - 1) and !visited[row - 1][col])
-			move(row - 1, col, ans, steps + 1);
-
-		// move left
-		if (isValid(col - 1) and !visited[row][col - 1])
-			move(row, col - 1, ans, steps + 1);
-
-	}
-
-	visited[row][col] = false;
-}
-
 void solve() {
-    cin >> path;
-	int ans = 0;
-	move(0, 0, ans, 0);
-	cout<<ans;
+    ll n;
+    cin>>n;
+    bool v[n][n];
+    for(int i=0; i<n; i++) 
+        for(int j=0; j<n; j++) {
+            char ch; 
+            cin>>ch;
+            if(ch=='.')
+                v[i][j] = 0;
+            else
+                v[i][j] = 1;
+        }
+
+    if(v[n-1][n-1] or v[0][0]) {
+        cout<<0;
+        return;
+    }
+    vector<vll> dp(n+1, vll(n+1, 0));
+    for(int i=n; i>=1; i--) {
+        for(int j=n; j>=1; j--) {
+            if(i==n and j==n)
+                dp[n][n] = 1;
+            else {
+                ll op1 = (i!=n) ? dp[i+1][j] : 0;
+                ll op2 = (j!=n) ? dp[i][j+1] : 0;
+
+                dp[i][j] = (op1+op2)%MOD;
+
+                if(v[i-1][j-1])
+                    dp[i][j]=0;
+            }
+        }
+    }
+    cout<<dp[1][1];
 }
 
 int main() {

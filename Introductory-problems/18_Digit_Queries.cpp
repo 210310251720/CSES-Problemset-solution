@@ -66,75 +66,60 @@ ll modadd(ll a,ll b){ return modpar(modpar(a)+modpar(b)); }
 ll modmul(ll a,ll b){ return modpar(modpar(a)*modpar(b)); }
 ll poww(ll n, ll r){ if(r == 0) return 1; if(r == 1) return n%mod; ll ans = 1; ll know=poww(n, r/2)%mod; if(r%2) ans = (ans * n)%mod; return (ans*((know*know)%mod))%mod;}
 
-/*------------------------------------------------------------------------------------*/
-
-const int n = 7;
-const int total_steps = n*n-1;
-bool visited[n][n];
-string path;
-
-// see if the point is in the grid or outside the grid
-bool isValid(int i) {
-	return (i >= 0 and i < 7);
-}
-
-void move(int row, int col, int &ans, int steps) {
-	if (row == n - 1 and col == 0) {
-		if (steps == total_steps)
-			ans++;
-		return ;
-	}
-
-	if ((row == n-1 or row == 0 or col == 0 or col == n-1 or (visited[row - 1][col] and visited[row+1][col])) and isValid(col - 1) and isValid(col + 1) and !visited[row][col - 1] and !visited[row][col + 1]) {
-		return;
-	}
-	if (((row + 1 == n or row == 0 or col == 0 or col + 1 == n  or (visited[row][col - 1] and visited[row][col + 1])) and isValid(row - 1) and isValid(row + 1) and !visited[row - 1][col] and !visited[row + 1][col])) {
-		return;
-	}
-
-	visited[row][col] = true;
-
-	if (path[steps] != '?')
-	{
-		if (path[steps] == 'U' and isValid(row - 1) and !visited[row - 1][col])
-			move(row - 1, col, ans, steps + 1);
-
-		else if (path[steps] == 'R' and isValid(col + 1) and !visited[row][col + 1])
-			move(row, col + 1, ans, steps + 1);
-
-		else if (path[steps] == 'D' and isValid(row + 1) and !visited[row + 1][col])
-			move(row + 1, col, ans, steps + 1);
-
-		else if (path[steps] == 'L' and isValid(col - 1) and !visited[row][col - 1])
-			move(row, col - 1, ans, steps + 1);
-	}
-	else {
-		// move down
-		if (isValid(row + 1) and !visited[row + 1][col])
-			move(row + 1, col, ans, steps + 1);
-
-		// move right
-		if (isValid(col + 1) and !visited[row][col + 1])
-			move(row, col + 1, ans, steps + 1);
-
-		// move up
-		if (isValid(row - 1) and !visited[row - 1][col])
-			move(row - 1, col, ans, steps + 1);
-
-		// move left
-		if (isValid(col - 1) and !visited[row][col - 1])
-			move(row, col - 1, ans, steps + 1);
-
-	}
-
-	visited[row][col] = false;
-}
-
-void solve() {
-    cin >> path;
-	int ans = 0;
-	move(0, 0, ans, 0);
-	cout<<ans;
+ 
+ll solve() {
+    vll v(18,0);
+    for (int i=1; i <= 18; i++)
+        v[i] = ((9*i*pow(10, i-1)));
+    
+    // for(auto i:v)
+    //     cout<<i<<" ";
+    // cout<<endl;
+ 
+ 
+    ll q;
+    cin>>q;
+    while (q--) {
+        ll k;
+        cin >> k;
+ 
+        ll sum = 0;
+        ll length_of_number = 0;
+        for (ll i = 0; i <= 17; i++) {
+            sum += v[i];
+            if (sum <= k)
+                length_of_number = i + 1;
+            else
+                break;
+        }
+  
+        sum -= v[length_of_number];
+        // cout<<"sum : "<<sum<<endl;
+        ll diff = k - sum;
+        // cout<<"diff : "<<diff<<endl;
+        ll starting_number = pow(10, length_of_number - 1);
+        ll distance_from_starting_number = (diff / length_of_number);
+        // sum += (distance_from_starting_number * length_of_number);
+        ll actual_number = starting_number + distance_from_starting_number - 1;
+        ll remainder = diff % length_of_number;
+        // cout<<"remainder : "<<remainder<<endl;
+        // cout<<"actual_number : "<<actual_number<<endl;
+        // cout<<"sum : "<<sum<<endl;
+        
+        if (remainder == 0)
+            cout << actual_number % 10 << endl;
+        else {
+            actual_number++;
+            // cout<<"final actual number : "<<actual_number<<endl;
+            remainder = length_of_number - remainder;
+            while (remainder--)
+            {
+                actual_number /= 10;
+            }
+            cout << actual_number % 10 << endl;
+        }
+    }
+    return 0;
 }
 
 int main() {
